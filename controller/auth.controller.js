@@ -55,7 +55,29 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  console.log("login router");
+  try{
+    const {username, password} = req.body;
+    const user = await User.findOne({username})
+    const isPassWordCorrect = await bcrypt.compare(password, user.password || "")
+
+    if(!user || !isPassWordCorrect){
+     return res.status(400).json({ error: "Incorrect email and password" }); 
+    }
+
+    generateTokenAndSetCookie(user._id, res)
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      username: user.username,
+      profilePic: user.profilePic, 
+    })
+
+  }
+  catch(err){
+    console.log(err);
+    res.status(500).json({ error: "internal server error" });
+  }
 };
 
 export const logout = async (req, res) => {
