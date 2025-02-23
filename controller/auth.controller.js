@@ -33,7 +33,7 @@ export const signup = async (req, res) => {
     });
 
     if (newUser) {
-      generateTokenAndSetCookie(newUser._id, res)
+      generateTokenAndSetCookie(newUser._id, res);
       await newUser.save();
 
       res.status(201).json({
@@ -42,12 +42,9 @@ export const signup = async (req, res) => {
         username: newUser.username,
         profilePic: newUser.profilePic,
       });
+    } else {
+      res.status(400).json({ error: "invalid user data" });
     }
-    else{
-        res.status(400).json({ error: "invalid user data" });  
-    }
-
-
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "internal server error" });
@@ -55,31 +52,41 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  try{
-    const {username, password} = req.body;
-    const user = await User.findOne({username})
-    const isPassWordCorrect = await bcrypt.compare(password, user.password || "")
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    const isPassWordCorrect = await bcrypt.compare(
+      password,
+      user.password || ""
+    );
 
-    if(!user || !isPassWordCorrect){
-     return res.status(400).json({ error: "Incorrect email and password" }); 
+    if (!user || !isPassWordCorrect) {
+      return res.status(400).json({ error: "Incorrect email and password" });
     }
 
-    generateTokenAndSetCookie(user._id, res)
+    generateTokenAndSetCookie(user._id, res);
 
     res.status(200).json({
       _id: user._id,
       fullName: user.fullName,
       username: user.username,
-      profilePic: user.profilePic, 
-    })
-
-  }
-  catch(err){
+      profilePic: user.profilePic,
+    });
+  } catch (err) {
     console.log(err);
     res.status(500).json({ error: "internal server error" });
   }
 };
 
-export const logout = async (req, res) => {
-  console.log("logout router");
+export const logout = (req, res) => {
+  try {
+    res.cookie('token', '', {
+      maxAge: 0,
+    });
+    res.status(200).json({ message: "logout Successfully" });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "internal server error" });
+  }
 };
