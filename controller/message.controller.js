@@ -27,8 +27,13 @@ export const sendMessage = async (req, res) => {
      conversation.messages.push(newMessage._id)
     }
 
-    await conversation.save();
-    await newMessage.save();
+//     socket.io will added here
+
+//     await conversation.save();
+//     await newMessage.save();
+    
+// this will run parallel
+    await Promise.all([conversation.save(), newMessage.save()])
 
     res.status(201).json(newMessage);
 
@@ -37,3 +42,21 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ error: "internal server error" });
   }
 };
+
+export const getMessages = async (req, res)=>{
+   try{
+     const userToChatId = req.params.id;
+     const senderId = req.user._id;
+
+     const conversation = await Conversation.findOne({
+          participants: { $all: [senderId, userToChatId] },   
+     }).populate('messages');
+
+     res.status(200).json(conversation.messages)
+    
+   }
+   catch(err){
+     console.log(err.message);
+     res.status(500).json({ error: "internal server error" })
+   }
+}
