@@ -22,6 +22,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
 
+app.get('/', (req, res)=>{
+    res.send('or chat server is running')
+    
+})
 
 server.listen(PORT, () => {
   connectedToMongoDb();
