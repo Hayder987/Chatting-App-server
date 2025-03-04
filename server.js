@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";  // Import CORS
+import cors from "cors";  
 import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.routes.js";
@@ -14,9 +14,12 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ 
-    origin: "*",  
-    credentials: true 
+
+const allowedOrigin = "https://or-chat-app.netlify.app";
+
+app.use(cors({
+    origin: allowedOrigin,  
+    credentials: true      
 }));
 
 app.use(express.json());
