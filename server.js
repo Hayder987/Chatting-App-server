@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";  
 import cookieParser from "cookie-parser";
+import http from "http"; 
 
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
@@ -14,13 +15,20 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
-
 const allowedOrigin = "https://or-chat-app.netlify.app";
 
-app.use(cors({
-    origin: allowedOrigin,  
-    credentials: true      
-}));
+const serverInstance = http.createServer(app);  
+
+
+const corsOptions = {
+  origin: allowedOrigin, 
+  credentials: true,       
+  methods: ["GET", "POST"], 
+};
+
+
+app.use(cors(corsOptions));
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -35,7 +43,22 @@ app.get('/', (req, res) => {
     res.send('or chat server is running');
 });
 
-server.listen(PORT, () => {
+// Initialize WebSocket with CORS handling
+import { Server } from "socket.io";
+
+const io = new Server(serverInstance, {
+  cors: {
+    origin: allowedOrigin,  
+    credentials: true,      
+  },
+});
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  
+});
+
+serverInstance.listen(PORT, () => {
     connectedToMongoDb();
     console.log(`Server running at: ${PORT}`);
 });
