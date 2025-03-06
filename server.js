@@ -13,7 +13,7 @@ import connectedToMongoDb from "./db/connectedToMongoDB.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const allowedOrigin = "https://or-chat-app.netlify.app";
 
 // CORS Middleware (apply BEFORE server instance)
