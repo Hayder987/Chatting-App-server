@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";  
+import cors from "cors";
 import cookieParser from "cookie-parser";
-import http from "http";  
+import http from "http";
 import { Server } from "socket.io";
 
 import authRoutes from "./routes/auth.routes.js";
@@ -18,9 +18,9 @@ const allowedOrigin = "https://or-chat-app.netlify.app";
 
 // CORS Middleware (apply BEFORE server instance)
 const corsOptions = {
-  origin: allowedOrigin,  
-  credentials: true,       
-  methods: ["GET", "POST"], 
+  origin: allowedOrigin,
+  credentials: true,
+  methods: ["GET", "POST"],
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -34,6 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
 
+// Root endpoint
 app.get("/", (req, res) => {
   res.send("or chat server is running");
 });
@@ -64,10 +65,17 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start Server
+// Start Server with error handling
 serverInstance.listen(PORT, () => {
-  connectedToMongoDb();
+  connectedToMongoDb(); // Connect to MongoDB
   console.log(`Server running at: ${PORT}`);
+}).on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use. Try another port.`);
+  } else {
+    console.error('Server startup error:', err);
+  }
+  process.exit(1);
 });
 
 
